@@ -7,6 +7,10 @@ import '../ui/player/player_controller.dart';
 class WindowsAudioService extends GetxService {
   late SMTCWindows smtc;
   final playerController = Get.find<PlayerController>();
+  StreamSubscription? _buttonPressSubscription;
+  StreamSubscription? _buttonStateSubscription;
+  StreamSubscription? _progressBarStatusSubscription;
+  StreamSubscription? _currentSongSubscription;
 
   @override
   void onInit() {
@@ -19,7 +23,7 @@ class WindowsAudioService extends GetxService {
       enabled: false,
     );
     try {
-      smtc.buttonPressStream.listen((event) {
+      _buttonPressSubscription = smtc.buttonPressStream.listen((event) {
         switch (event) {
           case PressedButton.play:
             playerController.play();
@@ -44,7 +48,7 @@ class WindowsAudioService extends GetxService {
       printERROR("Error: $e");
     }
 
-    playerController.buttonState.listen((state) {
+    _buttonStateSubscription = playerController.buttonState.listen((state) {
       switch (state) {
         case PlayButtonState.playing:
           smtc.setPlaybackStatus(PlaybackStatus.Playing);
@@ -58,11 +62,11 @@ class WindowsAudioService extends GetxService {
       }
     });
 
-    playerController.progressBarStatus.listen((status) {
+    _progressBarStatusSubscription = playerController.progressBarStatus.listen((status) {
       smtc.setPosition(status.current);
     });
 
-    playerController.currentSong.listen((song) async {
+    _currentSongSubscription = playerController.currentSong.listen((song) async {
       if (song != null) {
         if (!smtc.enabled) await smtc.enableSmtc();
         await smtc.updateMetadata(
@@ -81,6 +85,10 @@ class WindowsAudioService extends GetxService {
 
   @override
   void onClose() {
+    _buttonPressSubscription?.cancel();
+    _buttonStateSubscription?.cancel();
+    _progressBarStatusSubscription?.cancel();
+    _currentSongSubscription?.cancel();
     smtc.clearMetadata();
     smtc.disableSmtc();
     smtc.dispose();

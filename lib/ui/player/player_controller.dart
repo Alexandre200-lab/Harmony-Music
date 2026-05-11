@@ -82,6 +82,12 @@ class PlayerController extends GetxController
   final isCurrentSongBuffered = false.obs;
 
   late StreamSubscription<bool> keyboardSubscription;
+  StreamSubscription? _playbackStateSubscription;
+  StreamSubscription? _positionSubscription;
+  StreamSubscription? _bufferedPositionSubscription;
+  StreamSubscription? _mediaItemSubscription;
+  StreamSubscription? _queueSubscription;
+  StreamSubscription? _customEventSubscription;
 
   @override
   onInit() {
@@ -167,7 +173,7 @@ class PlayerController extends GetxController
   }
 
   void _listenForChangesInPlayerState() {
-    _audioHandler.playbackState.listen((playerState) {
+    _playbackStateSubscription = _audioHandler.playbackState.listen((playerState) {
       final isPlaying = playerState.playing;
       final processingState = playerState.processingState;
       if (processingState == AudioProcessingState.loading) {
@@ -209,7 +215,7 @@ class PlayerController extends GetxController
   }
 
   void _listenForChangesInPosition() {
-    AudioService.position.listen((position) {
+    _positionSubscription = AudioService.position.listen((position) {
       final oldState = progressBarStatus.value;
       if (isSleepEndOfSongActive.isTrue) {
         timerDurationLeft.value = oldState.total.inSeconds - position.inSeconds;
@@ -227,7 +233,7 @@ class PlayerController extends GetxController
   }
 
   void _listenForChangesInBufferedPosition() {
-    _audioHandler.playbackState.listen((playbackState) {
+    _bufferedPositionSubscription = _audioHandler.playbackState.listen((playbackState) {
       final oldState = progressBarStatus.value;
       if (progressBarStatus.value.total.inSeconds != 0 &&
           playbackState.bufferedPosition.inSeconds /
@@ -248,7 +254,7 @@ class PlayerController extends GetxController
   }
 
   void _listenForChangesInDuration() {
-    _audioHandler.mediaItem.listen((mediaItem) async {
+    _mediaItemSubscription = _audioHandler.mediaItem.listen((mediaItem) async {
       final oldState = progressBarStatus.value;
       progressBarStatus.update((val) {
         val!.total = mediaItem?.duration ?? Duration.zero;
@@ -282,7 +288,7 @@ class PlayerController extends GetxController
   }
 
   void _listenForPlaylistChange() {
-    _audioHandler.queue.listen((queue) {
+    _queueSubscription = _audioHandler.queue.listen((queue) {
       currentQueue.value = queue;
       currentQueue.refresh();
     });
@@ -312,7 +318,7 @@ class PlayerController extends GetxController
   }
 
   void _listenForCustomEvents() {
-    _audioHandler.customEvent.listen((event) {
+    _customEventSubscription = _audioHandler.customEvent.listen((event) {
       if (event['eventType'] == 'playFromMediaId') {
         _playViaAndroidAuto(event['songId'], event['libraryId']);
       }
@@ -818,6 +824,12 @@ class PlayerController extends GetxController
   void dispose() {
     _audioHandler.customAction('dispose');
     keyboardSubscription.cancel();
+    _playbackStateSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _bufferedPositionSubscription?.cancel();
+    _mediaItemSubscription?.cancel();
+    _queueSubscription?.cancel();
+    _customEventSubscription?.cancel();
     scrollController.dispose();
     gesturePlayerStateAnimationController?.dispose();
     sleepTimer?.cancel();

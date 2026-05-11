@@ -67,6 +67,13 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
   Box? _songsUrlCacheBox;
   Box? _songDownloadsBox;
 
+  // Stream subscriptions for cleanup
+  StreamSubscription? _sessionIdSubscription;
+  StreamSubscription? _playbackEventSubscription;
+  StreamSubscription? _positionStreamSubscription;
+  StreamSubscription? _sequenceStateSubscription;
+  StreamSubscription? _durationStreamSubscription;
+
   final _playList =
       ConcatenatingAudioSource(children: [], useLazyPreparation: false);
 
@@ -128,7 +135,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
   }
 
   void _listenSessionIdStream() {
-    _player.androidAudioSessionIdStream.listen((int? id) {
+    _sessionIdSubscription = _player.androidAudioSessionIdStream.listen((int? id) {
       if (id != null) {
         EqualizerService.initAudioEffect(id);
       }
@@ -136,7 +143,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
   }
 
   void _notifyAudioHandlerAboutPlaybackEvents() {
-    _player.playbackEventStream.listen((PlaybackEvent event) {
+    _playbackEventSubscription = _player.playbackEventStream.listen((PlaybackEvent event) {
       final playing = _player.playing;
       playbackState.add(playbackState.value.copyWith(
         controls: [
@@ -217,7 +224,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
         : GetPlatform.isLinux
             ? 700
             : 0;
-    _player.positionStream.listen((value) async {
+    _positionStreamSubscription = _player.positionStream.listen((value) async {
       if (_player.duration != null && _player.duration?.inSeconds != 0) {
         if (value.inMilliseconds >=
             (_player.duration!.inMilliseconds - playerDurationOffset)) {
@@ -239,14 +246,14 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
   }
 
   void _listenForSequenceStateChanges() {
-    _player.sequenceStateStream.listen((SequenceState? sequenceState) {
+    _sequenceStateSubscription = _player.sequenceStateStream.listen((SequenceState? sequenceState) {
       final sequence = sequenceState?.effectiveSequence;
       if (sequence == null || sequence.isEmpty) return;
     });
   }
 
   void _listenForDurationChanges() {
-    _player.durationStream.listen((duration) async {
+    _durationStreamSubscription = _player.durationStream.listen((duration) async {
       final currQueue = queue.value;
       if (currentIndex == null || currQueue.isEmpty || duration == null) return;
       final currentSong = currQueue[currentIndex!];
@@ -970,5 +977,15 @@ class MediaLibrary {
     }
 
     return songs;
+  }
+
+  @override
+  void onClose() {
+    _sessionIdSubscription?.cancel();
+    _playbackEventSubscription?.cancel();
+    _positionStreamSubscription?.cancel();
+    _sequenceStateSubscription?.cancel();
+    _durationStreamSubscription?.cancel();
+    super.onClose();
   }
 }
