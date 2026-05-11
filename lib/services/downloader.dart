@@ -216,15 +216,18 @@ class Downloader extends GetxService {
               year = await musicServ.getSongYear(song.id);
             }
           }
-        } catch (_) {}
+        } catch (e) {
+          printERROR("Failed to get song year: $e");
+        }
 
         // Save Thumbnail
         try {
           final thumbnailPath =
               "${settingsScreenController.supportDirPath}/thumbnails/${song.id}.png";
           await _dio.downloadUri(song.artUri!, thumbnailPath);
-          // ignore: empty_catches
-        } catch (e) {}
+        } catch (e) {
+          printERROR("Failed to download thumbnail: $e");
+        }
 
         song.extras?['url'] = filePath;
         final songJson = MediaItemBuilder.toJson(song);

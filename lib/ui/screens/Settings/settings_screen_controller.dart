@@ -229,8 +229,9 @@ class SettingsScreenController extends GetxController {
       if (await tempImgDir.exists()) {
         await tempImgDir.delete(recursive: true);
       }
-      // ignore: empty_catches
-    } catch (e) {}
+    } catch (e) {
+      printERROR("Failed to clear images cache: $e");
+    }
   }
 
   void resetDownloadLocation() {

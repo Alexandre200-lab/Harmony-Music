@@ -232,8 +232,9 @@ class HomeScreenController extends GetxController {
                 QuickPicks(List<MediaItem>.from(value[0]["contents"]));
             Hive.box("AppPrefs").put("recentSongId", songId);
           }
-          // ignore: empty_catches
-        } catch (e) {}
+        } catch (e) {
+          printERROR("Failed to fetch quick picks: $e");
+        }
       }
     }
     if (quickPicks_ == null) return;

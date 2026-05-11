@@ -689,7 +689,9 @@ class PlayerController extends GetxController
               action: 'remove');
 
       // ignore: empty_catches
-    } catch (e) {}
+    } catch (e) {
+      printERROR("Failed to sync favorite to playlist: $e");
+    }
     isCurrentSongFav.value = !isCurrentSongFav.value;
     if (Get.find<SettingsScreenController>()
             .autoDownloadFavoriteSongEnabled
@@ -733,7 +735,9 @@ class PlayerController extends GetxController
             action: 'add', index: 0);
 
         // ignore: empty_catches
-      } catch (e) {}
+      } catch (e) {
+        printERROR("Failed to update recently played list: $e");
+      }
     }
     recentItem = mediaItem;
   }

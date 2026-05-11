@@ -197,7 +197,8 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
           try {
             await _player.seek(curPos, index: 0);
             await _player.play();
-          } catch (_) {
+          } catch (e) {
+            printERROR("Failed to seek/replay: $e");
             // If seek fails, try to replay the current song
             await customAction("playByIndex", {'index': currentIndex, 'newUrl': true});
           }
