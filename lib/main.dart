@@ -6,6 +6,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:terminate_restart/terminate_restart.dart';
 
+const int defaultThemePrimaryColor = 0xFF1DB954;
+const String defaultLanguageCode = 'en';
+
 import '/ui/screens/Search/search_screen_controller.dart';
 import '/utils/get_localization.dart';
 import '/services/downloader.dart';
@@ -123,7 +126,7 @@ void _setAppInitPrefs() {
       "cacheSongs": false,
       "skipSilenceEnabled": false,
       'streamingQuality': 1,
-      'themePrimaryColor': 4278199603,
+      'themePrimaryColor': defaultThemePrimaryColor,
       'discoverContentType': "QP",
       'newVersionVisibility': updateCheckFlag,
       "cacheHomeScreenData": true

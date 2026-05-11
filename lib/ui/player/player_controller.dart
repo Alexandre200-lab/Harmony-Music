@@ -23,6 +23,10 @@ import '/services/music_service.dart';
 
 class PlayerController extends GetxController
     with GetSingleTickerProviderStateMixin {
+  static const int sleepTimerThreshold = 1;
+  static const double defaultVolume = 100.0;
+  static const double minVolume = 10.0;
+
   final _audioHandler = Get.find<AudioHandler>();
   final _musicServices = Get.find<MusicServices>();
   final currentQueue = <MediaItem>[].obs;
@@ -219,16 +223,18 @@ class PlayerController extends GetxController
       final oldState = progressBarStatus.value;
       if (isSleepEndOfSongActive.isTrue) {
         timerDurationLeft.value = oldState.total.inSeconds - position.inSeconds;
-        if (timerDurationLeft.value == 1) {
+        if (timerDurationLeft.value == sleepTimerThreshold) {
           pause();
           cancelSleepTimer();
         }
       }
-      progressBarStatus.update((val) {
-        val!.current = position;
-        val.buffered = oldState.buffered;
-        val.total = oldState.total;
-      });
+      if (position.inSeconds != oldState.current.inSeconds) {
+        progressBarStatus.update((val) {
+          val!.current = position;
+          val.buffered = oldState.buffered;
+          val.total = oldState.total;
+        });
+      }
     });
   }
 

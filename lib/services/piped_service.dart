@@ -5,6 +5,8 @@ import 'package:hive/hive.dart';
 
 import '../utils/helper.dart';
 
+const String defaultPipedInstanceUrl = "https://piped-instances.kavin.rocks/";
+
 class PipedServices extends GetxService {
   final Map<String, dynamic> _headers = {};
   final _dio = Dio();
@@ -68,7 +70,7 @@ class PipedServices extends GetxService {
       bool isInstanceListReq = false,
       bool isSongListReq = false}) async {
     final url = isInstanceListReq
-        ? "https://piped-instances.kavin.rocks/"
+        ? defaultPipedInstanceUrl
         : "$_insApiUrl$endpoint";
     try {
       final response = reqType == "post"
