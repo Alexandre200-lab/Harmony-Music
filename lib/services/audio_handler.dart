@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
@@ -513,8 +514,14 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
               errorMessage: streamInfo.statusMSG));
           return;
         }
-        currentSong.extras ??= {};
-        currentSongUrl = currentSong.extras!['url'] = streamInfo.audio!.url;
+        final extras = currentSong.extras ?? {};
+        if (extras is Map) {
+          final mutableExtras = Map<String, dynamic>.from(extras);
+          mutableExtras['url'] = streamInfo.audio!.url;
+          currentSongUrl = mutableExtras['url'] as String;
+        } else {
+          currentSongUrl = streamInfo.audio!.url;
+        }
         playbackState
             .add(playbackState.value.copyWith(queueIndex: currentIndex));
         await _playList.add(_createAudioSource(currentSong));
@@ -580,8 +587,14 @@ case 'checkWithCacheDb':
               .copyWith(processingState: AudioProcessingState.error));
           return;
         }
-        currMed.extras ??= {};
-        currentSongUrl = currMed.extras!['url'] = streamInfo.audio!.url;
+        final extras = currMed.extras ?? {};
+        if (extras is Map) {
+          final mutableExtras = Map<String, dynamic>.from(extras);
+          mutableExtras['url'] = streamInfo.audio!.url;
+          currentSongUrl = mutableExtras['url'] as String;
+        } else {
+          currentSongUrl = streamInfo.audio!.url;
+        }
 
         await _playList.add(_createAudioSource(currMed));
         isSongLoading = false;

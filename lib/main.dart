@@ -6,9 +6,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:terminate_restart/terminate_restart.dart';
 
-const int defaultThemePrimaryColor = 0xFF1DB954;
-const String defaultLanguageCode = 'en';
-
 import '/ui/screens/Search/search_screen_controller.dart';
 import '/utils/get_localization.dart';
 import '/services/downloader.dart';
@@ -24,6 +21,9 @@ import 'ui/screens/Home/home_screen_controller.dart';
 import 'ui/screens/Library/library_controller.dart';
 import 'utils/system_tray.dart';
 import 'utils/update_check_flag_file.dart';
+
+const int defaultThemePrimaryColor = 0xFF1DB954;
+const String defaultLanguageCode = 'en';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
