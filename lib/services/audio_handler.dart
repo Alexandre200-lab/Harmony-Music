@@ -301,7 +301,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
   }
 
   AudioSource _createAudioSource(MediaItem mediaItem) {
-    final url = mediaItem.extras!['url'] as String;
+    final url = mediaItem.extras?['url'] as String? ?? '';
     if (url.contains('/cache') ||
         (Get.find<SettingsScreenController>().cacheSongs.isTrue &&
             url.contains("http"))) {
@@ -512,6 +512,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
               errorMessage: streamInfo.statusMSG));
           return;
         }
+        currentSong.extras ??= {};
         currentSongUrl = currentSong.extras!['url'] = streamInfo.audio!.url;
         playbackState
             .add(playbackState.value.copyWith(queueIndex: currentIndex));
@@ -578,6 +579,7 @@ case 'checkWithCacheDb':
               .copyWith(processingState: AudioProcessingState.error));
           return;
         }
+        currMed.extras ??= {};
         currentSongUrl = currMed.extras!['url'] = streamInfo.audio!.url;
 
         await _playList.add(_createAudioSource(currMed));
@@ -613,7 +615,8 @@ case 'checkWithCacheDb':
             }
 
             if (_songDownloadsBox?.containsKey(currentSongId) ?? false) {
-              final streamInfo = _songDownloadsBox!.get(currentSongId)["streamInfo"];
+              final downloadData = _songDownloadsBox!.get(currentSongId);
+              final streamInfo = downloadData?["streamInfo"];
               _normalizeVolume(streamInfo == null ? 0 : streamInfo[1]["loudnessDb"]);
             }
           } catch (e) {
@@ -794,7 +797,8 @@ case 'checkWithCacheDb':
     printINFO("Requested id : $songId");
     if (!offlineReplacementUrl && (_songsCacheBox?.containsKey(songId) ?? false)) {
       printINFO("Got Song from cachedbox ($songId)");
-      final streamInfo = _songsCacheBox?.get(songId)["streamInfo"];
+      final cachedSong = _songsCacheBox?.get(songId);
+      final streamInfo = cachedSong?["streamInfo"];
       Audio? cacheAudioPlaceholder;
       if (streamInfo != null && streamInfo.isNotEmpty) {
         streamInfo[1]['url'] = "file://$_cacheDir/cachedSongs/$songId.mp3";

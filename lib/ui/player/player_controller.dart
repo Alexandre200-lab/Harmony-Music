@@ -662,17 +662,19 @@ class PlayerController extends GetxController
         await Hive.box("AppPrefs").put("volume", vol);
       }
     }
-    _audioHandler.customAction("setVolume", {"value": vol!});
-    volume.value = vol;
+    _audioHandler.customAction("setVolume", {"value": vol ?? 0});
+    volume.value = vol ?? 0;
   }
 
   Future<void> _checkFav() async {
-    isCurrentSongFav.value =
-        (await Hive.openBox("LIBFAV")).containsKey(currentSong.value!.id);
+    final songId = currentSong.value?.id;
+    isCurrentSongFav.value = songId != null &&
+        (await Hive.openBox("LIBFAV")).containsKey(songId);
   }
 
   Future<void> toggleFavourite() async {
-    final currMediaItem = currentSong.value!;
+    final currMediaItem = currentSong.value;
+    if (currMediaItem == null) return;
     final box = await Hive.openBox("LIBFAV");
     isCurrentSongFav.isFalse
         ? box.put(currMediaItem.id, MediaItemBuilder.toJson(currMediaItem))

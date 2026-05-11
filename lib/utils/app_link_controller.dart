@@ -66,14 +66,18 @@ mixin ProcessLink {
       if (uri.pathSegments[0] == "playlist" &&
           uri.queryParameters.containsKey("list")) {
         final browseId = uri.queryParameters['list'];
-        await openPlaylistOrAlbum(browseId!);
+        if (browseId != null) {
+          await openPlaylistOrAlbum(browseId);
+        }
       } else if (uri.pathSegments[0] == "shorts") {
         ScaffoldMessenger.of(Get.context!).showSnackBar(snackbar(
             Get.context!, "notaSongVideo".tr,
             size: SanckBarSize.MEDIUM));
       } else if (uri.pathSegments[0] == "watch") {
         final songId = uri.queryParameters['v'];
-        await playSong(songId!);
+        if (songId != null) {
+          await playSong(songId);
+        }
       } else if (uri.pathSegments[0] == "channel") {
         final browseId = uri.pathSegments[1];
         await openArtist(browseId);

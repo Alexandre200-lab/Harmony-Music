@@ -39,10 +39,12 @@ void sortSongsNVideos(
   switch (sortType) {
     case SortType.Date:
       compareFunction = (a, b) {
-        if (a.extras!['date'] == null || b.extras!['date'] == null) {
+        final aDate = a.extras?['date'] as String?;
+        final bDate = b.extras?['date'] as String?;
+        if (aDate == null || bDate == null) {
           return 0.compareTo(0);
         }
-        return a.extras!['date'].compareTo(b.extras!['date']);
+        return aDate.compareTo(bDate);
       };
       break;
     case SortType.Duration:
